@@ -1,74 +1,94 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React from "react";
+import { StyleSheet, Text, View, FlatList, ImageBackground, TouchableOpacity } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Card } from "react-native-elements";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const Tab = createBottomTabNavigator();
 
-export default function HomeScreen() {
+const tidesData = [
+  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊" },
+  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊" },
+  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊" },
+  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊" },
+];
+
+function TidesScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ImageBackground source={require('../../assets/images/shoresyncBackground.png')} 
+    style={styles.background}
+    resizeMode="cover">
+      <Text style={styles.title}>SHORESYNC</Text>
+      <Card containerStyle={styles.card}>
+        <FlatList
+          data={tidesData}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.row}>
+              <Text style={styles.icon}>{item.icon}</Text>
+              <Text style={styles.location}>{item.location}</Text>
+              <Text style={styles.level}>{item.level}</Text>
+            </View>
+          )}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </Card>
+      <View style={styles.recommendation}>
+        <Text style={styles.recommendationText}>
+          There will be a fishing event at 8:00 AM at your nearest beach. Do you want to sign up?
+        </Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Yes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>No</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ImageBackground>
+  );
+}
+
+function SearchScreen() {
+  return (
+    <View style={styles.screen}>
+      <Text>Search Screen</Text>
+    </View>
+  );
+}
+
+function MapScreen() {
+  return (
+    <View style={styles.screen}>
+      <Text>Map Screen</Text>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+
+      <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Screen name="Tides" component={TidesScreen} />
+        <Tab.Screen name="Search" component={SearchScreen} />
+        <Tab.Screen name="Map" component={MapScreen} />
+      </Tab.Navigator>
+ 
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  background: { flex: 1, justifyContent: "center", alignItems: "center", width: "100%" },
+  title: { fontSize: 50, fontWeight: "bold", color: "white", marginTop: "-15%", marginLeft: "5%" },
+  card: { width: "90%", padding: 15, borderRadius: 10 },
+  row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 },
+  icon: { fontSize: 20 },
+  location: { fontSize: 18, fontWeight: "bold" },
+  level: { fontSize: 18, color: "blue" },
+  recommendation: { backgroundColor: "#FFF", padding: 20, borderRadius: 10, margin: 10, alignItems: "center" },
+  recommendationText: { fontSize: 16, textAlign: "center" },
+  buttonRow: { flexDirection: "row", marginTop: 10 },
+  button: { backgroundColor: "#007AFF", padding: 10, borderRadius: 5, marginHorizontal: 10 },
+  buttonText: { color: "white", fontSize: 16 },
+  screen: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
