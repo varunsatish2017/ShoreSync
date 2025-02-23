@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, FlatList, ImageBackground, TouchableOpacity } f
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-elements";
+import MapView from 'react-native-maps'
 
 const Tab = createBottomTabNavigator();
 
+// Dummy tides data - real data will be fetched from a surf data API
 const tidesData = [
   { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊" },
   { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊" },
@@ -57,38 +59,64 @@ function SearchScreen() {
   );
 }
 
+/**
+ * Displays a map with pins on all of the beaches near the user's
+ * selected location(s) and a popup showing the wave heights at each beach. 
+ * @returns Page displaying the map
+ */
 function MapScreen() {
   return (
-    <View style={styles.screen}>
-      <Text>Map Screen</Text>
-    </View>
+    <ImageBackground source={require('../../assets/images/shoresyncBackground.png')}
+      style={styles.background}
+      resizeMode="cover">
+        <Text style={styles.title}>SHORESYNC</Text>
+        
+        <MapView 
+          style={styles.map} 
+          showsMyLocationButton={true} //only for android
+        />
+
+        <View style={styles.recommendation}>
+          <Text style={styles.recommendationText}>
+            There will be a fishing event at 8:00 AM at your nearest beach. Do you want to sign up?
+          </Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+    </ImageBackground>
   );
 }
 
 export default function App() {
   return (
-
       <Tab.Navigator screenOptions={{ headerShown: false }}>
         <Tab.Screen name="Tides" component={TidesScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="Map" component={MapScreen} />
       </Tab.Navigator>
- 
   );
 }
 
 const styles = StyleSheet.create({
   background: { flex: 1, justifyContent: "center", alignItems: "center", width: "100%" },
-  title: { fontSize: 50, fontWeight: "bold", color: "white", marginTop: "-15%", marginLeft: "5%" },
-  card: { width: "90%", padding: 15, borderRadius: 10 },
+  title: { fontSize: 50, fontWeight: "bold", color: "white", marginTop: "-15%", marginLeft: "5%", padding: 15 },
+  card: { width: "90%", padding: 15, borderRadius: 10, height:"40%"},
   row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 },
   icon: { fontSize: 20 },
   location: { fontSize: 18, fontWeight: "bold" },
   level: { fontSize: 18, color: "blue" },
-  recommendation: { backgroundColor: "#FFF", padding: 20, borderRadius: 10, margin: 10, alignItems: "center" },
+  recommendation: { backgroundColor: "#FFF", padding: 20, borderRadius: 10, margin: 10, alignItems: "center"},
   recommendationText: { fontSize: 16, textAlign: "center" },
   buttonRow: { flexDirection: "row", marginTop: 10 },
   button: { backgroundColor: "#007AFF", padding: 10, borderRadius: 5, marginHorizontal: 10 },
   buttonText: { color: "white", fontSize: 16 },
   screen: { flex: 1, justifyContent: "center", alignItems: "center" },
+  map: {width: "90%", justifyContent: "center", height: "40%", padding: 15}
 });
