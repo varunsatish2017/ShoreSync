@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, Text, View, FlatList, ImageBackground, TouchableOpacity } from "react-native";
+import React, {useState} from "react";
+import { StyleSheet, Text, TextInput, View, FlatList, ImageBackground, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-elements";
@@ -51,11 +51,37 @@ function TidesScreen() {
   );
 }
 
+
+
 function SearchScreen() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredData = tidesData.filter(item =>
+    item.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
-    <View style={styles.screen}>
-      <Text>Search Screen</Text>
-    </View>
+    <ImageBackground source={require('../../assets/images/shoresyncBackground.png')} 
+    style={styles.background}
+    resizeMode="cover">
+      <View style={styles.search_bar}>
+        {/* Search Bar */}
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search by location..."
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
+        </View>
+        {/* Display Filtered Results */}
+        <FlatList
+          data={filteredData}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.item}>
+              <Text style={styles.text}>{item.location} - {item.level}</Text>
+            </View>
+          )}
+        />
+    </ImageBackground>
   );
 }
 
@@ -118,5 +144,35 @@ const styles = StyleSheet.create({
   button: { backgroundColor: "#007AFF", padding: 10, borderRadius: 5, marginHorizontal: 10 },
   buttonText: { color: "white", fontSize: 16 },
   screen: { flex: 1, justifyContent: "center", alignItems: "center" },
-  map: {width: "90%", justifyContent: "center", height: "40%", padding: 15}
+  //used for second screen
+  search_bar: {
+    flex: 1,
+    width: "90%",
+    paddingVertical: 40,
+    borderRadius: 10
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  item: {
+    flexDirection: "row",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  icon2: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  text: {
+    fontSize: 18,
+  },
+  map: {width: "90%", justifyContent: "center", height: "40%", padding: 15},
 });
