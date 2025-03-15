@@ -9,10 +9,12 @@ const Tab = createBottomTabNavigator();
 
 // Dummy tides data - real data will be fetched from a surf data API
 const tidesData = [
-  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊" },
-  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊" },
-  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊" },
-  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊" },
+  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊",state:"CA" },
+  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊",state:"CA" },
+  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊",state:"CA" },
+  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊",state:"CA" },
+  { id: "5", location: "Miami", level: "2.7 ft", icon: "🌊",state:"FL" },
+  { id: "6", location: "Seattle", level: "-0.9 ft", icon: "🌊",state:"WA" },
 ];
 
 function TidesScreen() {
@@ -58,32 +60,64 @@ function SearchScreen() {
   const filteredData = tidesData.filter(item =>
     item.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   return (
-    <ImageBackground source={require('../../assets/images/shoresyncBackground.png')} 
-    style={styles.background}
-    resizeMode="cover">
+    <ImageBackground
+      source={require('../../assets/images/shoresyncBackground.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <Text style={styles.title}>SHORESYNC</Text>
+
+      {/* Search Bar */}
       <View style={styles.search_bar}>
-        {/* Search Bar */}
         <TextInput
           style={styles.searchBar}
           placeholder="Search by location..."
+          placeholderTextColor="lightgray"
           value={searchQuery}
           onChangeText={(text) => setSearchQuery(text)}
         />
+      </View>
+
+      {/* Grey Box around List */}
+      <View style={[styles.listContainer, { flex: 1 }]}>
+        {/* Conditionally render FlatList only if searchQuery has text */}
+        {searchQuery.length > 0 && (
+          <FlatList
+            data={filteredData}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.row}>
+                <Text style={styles.icon}>{item.icon}</Text>
+                <Text style={styles.location}>{item.location}, {item.state}</Text>
+                <Text style={styles.level}>{item.level}</Text>
+              </View>
+            )}
+            style={styles.list}
+          />
+        )}
+      </View>
+      {/* Recommendation Box */}
+      <View style={styles.recommendation}>
+        <Text style={styles.recommendationText}>
+          There will be a fishing event at 8:00 AM at your nearest beach. Do you want to sign up?
+        </Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Yes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>No</Text>
+          </TouchableOpacity>
         </View>
-        {/* Display Filtered Results */}
-        <FlatList
-          data={filteredData}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text style={styles.text}>{item.location} - {item.level}</Text>
-            </View>
-          )}
-        />
+      </View>
     </ImageBackground>
   );
 }
+
+
+
 
 /**
  * Displays a map with pins on all of the beaches near the user's
@@ -123,8 +157,8 @@ function MapScreen() {
 export default function App() {
   return (
       <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen name="Tides" component={TidesScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
+        <Tab.Screen name="Tides" component={TidesScreen} />
         <Tab.Screen name="Map" component={MapScreen} />
       </Tab.Navigator>
   );
@@ -132,7 +166,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   background: { flex: 1, justifyContent: "center", alignItems: "center", width: "100%" },
-  title: { fontSize: 50, fontWeight: "bold", color: "white", marginTop: "-15%", marginLeft: "5%", padding: 15 },
+  title: { fontSize: 50, fontWeight: "bold", color: "white", marginTop: "0%", padding: 15 },
   card: { width: "90%", padding: 15, borderRadius: 10, height:"40%"},
   row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 },
   icon: { fontSize: 20 },
@@ -146,9 +180,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, justifyContent: "center", alignItems: "center" },
   //used for second screen
   search_bar: {
-    flex: 1,
     width: "90%",
-    paddingVertical: 40,
+    paddingVertical: 10,
     borderRadius: 10
   },
   searchBar: {
@@ -157,7 +190,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    marginBottom: 0,
+    backgroundColor: "rgb(37, 37, 37)",
+    color:"white",
+  },
+  // Grey box container
+  listContainer: {
+    width: "90%",
+    minHeight: 300, 
+    maxHeight: 300,  // Limits to ~6 items at a time
+    borderColor: "grey",  
+    borderWidth: 2,  
+    borderRadius: 10,  
+    backgroundColor: "rgba(200, 200, 200, 0.2)", 
+    padding: 10, 
+  },
+  list: {
+    maxHeight: 350, // should match or be greater than listContainer height
   },
   item: {
     flexDirection: "row",
@@ -174,5 +223,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
   },
+  //third screen
   map: {width: "90%", justifyContent: "center", height: "40%", padding: 15},
 });
