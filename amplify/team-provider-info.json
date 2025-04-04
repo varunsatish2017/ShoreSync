@@ -1,0 +1,26 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-shoresync-dev-86840-authRole",
+      "UnauthRoleArn": "arn:aws:iam::491085430711:role/amplify-shoresync-dev-86840-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::491085430711:role/amplify-shoresync-dev-86840-authRole",
+      "Region": "us-west-1",
+      "DeploymentBucketName": "amplify-shoresync-dev-86840-deployment",
+      "UnauthRoleName": "amplify-shoresync-dev-86840-unauthRole",
+      "StackName": "amplify-shoresync-dev-86840",
+      "StackId": "arn:aws:cloudformation:us-west-1:491085430711:stack/amplify-shoresync-dev-86840/b6bdbdc0-0c5f-11f0-a0d3-02f1297ef54b",
+      "AmplifyAppId": "deopsn9by3d4e"
+    },
+    "categories": {
+      "auth": {
+        "shoresyncd388f6dc": {}
+      },
+      "function": {
+        "shoresync5e289b38": {
+          "deploymentBucketName": "amplify-shoresync-dev-86840-deployment",
+          "s3Key": "amplify-builds/shoresync5e289b38-5a6578693535486c7769-build.zip"
+        }
+      }
+    }
+  }
+}
