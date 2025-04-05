@@ -23,10 +23,12 @@ import { Amplify } from 'aws-amplify';
 import config from '../../src/amplifyconfiguration.json';
 Amplify.configure(config);
 const tidesData = [
-  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊" },
-  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊" },
-  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊" },
-  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊" },
+  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊",state:"CA" },
+  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊",state:"CA" },
+  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊",state:"CA" },
+  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊",state:"CA" },
+  { id: "5", location: "Miami", level: "2.7 ft", icon: "🌊",state:"FL" },
+  { id: "6", location: "Seattle", level: "-0.9 ft", icon: "🌊",state:"WA" },
 ];
 
 function SearchScreen() {
