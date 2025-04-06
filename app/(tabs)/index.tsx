@@ -1,21 +1,116 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { StyleSheet, Text, TextInput, View, FlatList, ImageBackground, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-elements";
 import MapView from 'react-native-maps'
+import { enableScreens } from "react-native-screens";
+import { List } from "react-native-paper";
+import { fetchWeatherApi } from "openmeteo";
+import { Hook } from "expo/config";
+
 
 const Tab = createBottomTabNavigator();
 
+export let locationAdder:Function;
+
+enableScreens();
+
+
 // Dummy tides data - real data will be fetched from a surf data API
-const tidesData = [
-  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊" },
-  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊" },
-  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊" },
-  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊" },
+export const tidesData = [
+  { id: "1", location: "Santa Cruz", level: "5 ft", icon: "🌊" },
+  // { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊" },
+  // { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊" },
+  // { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊" },
 ];
 
+//Data has the values, setData is the function to set the data
+
+//Test case for Santa Cruz
+const apiCallParams = {
+  latitude: 36.958496166,
+  longitude: -122.017333264,
+  current: "wave_height",
+  timezone: "auto",
+  length_unit: "imperial",
+  wind_speed_unit: "mph" 
+} //Default lat/long for now: Santa Cruz, CA
+
+/**
+ * Updates the list of cities whenever the user adds a new location.
+ * Should be called from Search Screen when the user adds a new location.
+ */
+export function updateCitiesList() {
+  //For now, use the hardcoded cities until search bar works
+  //Cities will be stored along with their coordinates 
+}
+
+/**
+ * Goes through each city in the list and fetches the wave data for that city
+ * using each city's coordinates. Updates the UI correspondingly.
+ * 
+ * 
+ * @returns the wave data for each city
+ */
+async function fetchWaveHeight(lat: number, long: number){
+  try {
+    const data = await fetchWeatherApi("https://marine-api.open-meteo.com/v1/marine", {latitude:lat, longitude:long, current: "wave_height"});
+    const firstWaveData = data[0];
+    const latitude = firstWaveData.latitude()!;
+    const longitude = firstWaveData.longitude()!;
+    const currData = firstWaveData.current()!;
+
+    const m_to_ft = 3.280839895;
+    const waveHeight = (m_to_ft * currData.variables(0)!.value()).toFixed(1); // Get the wave height value
+    const waveHeightUnit = currData.variables(0)!.unit(); // Get the wave height unit
+    console.log("Wave height unit: " + waveHeightUnit); // Log the wave height unit
+    console.log("Wave height " + waveHeight + " ft"); // Log the wave height for Santa Cruz
+    return waveHeight + " ft";
+  } catch (error) {
+      console.error(error);
+      return "--"; // Return a default value in case of an error
+  }
+}
+
+export async function addLocation(cityName: string, lat: number, long: number) {
+  // const newWaveHeight = await fetchWaveHeight(lat, long); // Fetch the wave height
+  locationAdder((prevState:any) => [
+    ...prevState,
+    { id: (prevState.length + 1) + "", icon: "🌊", cityName: cityName, lat: lat, long: long, waveHeight: "--" },
+  ]);
+}
+
 function TidesScreen() {
+
+  const [waveData, setWaveData] = useState([{id: "1", icon: "🌊", cityName: "Santa Cruz", lat: apiCallParams.latitude,
+    long: apiCallParams.longitude, waveHeight: "--"}]); // Holds city name, its coordinates, and updated wave height  
+
+  locationAdder = setWaveData;
+
+  //For testing only
+  useEffect(() => {
+    addLocation("San Francisco", 37.7749, -122.4194); // Example of adding a new location
+    addLocation("Cupertino", 37.3229, -122.0322); // Example of adding a new location
+  }, []); // Call addLocation when the component mounts
+    
+
+  useEffect(() => {
+    async function updateWaveHeights() {
+      for (let i = 0; i < waveData.length; i++){
+        console.log("Wave data: " + waveData[i]);
+        const newWaveHeight = await fetchWaveHeight(waveData[i].lat, waveData[i].long); // Fetch the wave height
+        setWaveData((prevState) => 
+          prevState.map((item) =>
+            item.id == waveData[i].id ? {...item, waveHeight: newWaveHeight} : item
+          )
+        );
+      }
+    }
+    updateWaveHeights();
+  }, waveData) //updates wave data when the app renders
+  
+
   return (
     <ImageBackground source={require('../../assets/images/shoresyncBackground.png')} 
     style={styles.background}
@@ -23,13 +118,13 @@ function TidesScreen() {
       <Text style={styles.title}>SHORESYNC</Text>
       <Card containerStyle={styles.card}>
         <FlatList
-          data={tidesData}
+          data={waveData}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.row}>
               <Text style={styles.icon}>{item.icon}</Text>
-              <Text style={styles.location}>{item.location}</Text>
-              <Text style={styles.level}>{item.level}</Text>
+              <Text style={styles.location}>{item.cityName}</Text>
+              <Text style={styles.level}>{item.waveHeight}</Text>
             </View>
           )}
         />
@@ -122,11 +217,11 @@ function MapScreen() {
 
 export default function App() {
   return (
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen name="Tides" component={TidesScreen} />
-        <Tab.Screen name="Search" component={SearchScreen} />
-        <Tab.Screen name="Map" component={MapScreen} />
-      </Tab.Navigator>
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Tides" component={TidesScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Map" component={MapScreen} />
+    </Tab.Navigator>
   );
 }
 
@@ -176,3 +271,5 @@ const styles = StyleSheet.create({
   },
   map: {width: "90%", justifyContent: "center", height: "40%", padding: 15},
 });
+
+
