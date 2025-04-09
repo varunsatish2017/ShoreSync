@@ -91,24 +91,31 @@ function TidesScreen() {
   //For testing only
   useEffect(() => {
     addLocation("San Francisco", 37.7749, -122.4194); // Example of adding a new location
-    addLocation("Cupertino", 37.3229, -122.0322); // Example of adding a new location
+    addLocation("Big Sur", 36.2749, -121.8058); // Example of adding a new location
+    addLocation("Half Moon Bay", 37.4634, -122.4284); // Example of adding a new location
   }, []); // Call addLocation when the component mounts
+  
+  useEffect(() => {
+    addLocation("Santa Barbara", 34.4208, -119.682) // Example of adding a new location
+  }, []);
     
 
   useEffect(() => {
     async function updateWaveHeights() {
       for (let i = 0; i < waveData.length; i++){
-        console.log("Wave data: " + waveData[i]);
-        const newWaveHeight = await fetchWaveHeight(waveData[i].lat, waveData[i].long); // Fetch the wave height
-        setWaveData((prevState) => 
-          prevState.map((item) =>
-            item.id == waveData[i].id ? {...item, waveHeight: newWaveHeight} : item
-          )
-        );
+        console.log("Wave data: " + waveData[i].waveHeight);
+        if (waveData[i].waveHeight == "--") {
+          const newWaveHeight = await fetchWaveHeight(waveData[i].lat, waveData[i].long); // Fetch the wave height
+          setWaveData((prevState) => 
+            prevState.map((item) =>
+              (item.waveHeight === "--" && item.id === (i + 1) + "") ? {...item, waveHeight: newWaveHeight} : item
+            )
+          );
+        }
       }
     }
     updateWaveHeights();
-  }, waveData) //updates wave data when the app renders
+  }, [waveData.length]) //updates wave data when the app renders
   
 
   return (
