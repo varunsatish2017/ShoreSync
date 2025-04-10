@@ -115,7 +115,7 @@ function TidesScreen() {
       }
     }
     updateWaveHeights();
-  }, [waveData.length]) //updates wave data when the app renders
+  }, [waveData.length]) //updates wave data when the size of waveData changes
   
 
   return (
