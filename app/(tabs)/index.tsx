@@ -6,7 +6,7 @@ import {
   TextInput,
   Pressable,
   SafeAreaView,
-   FlatList, ImageBackground, TouchableOpacity, 
+   FlatList, ImageBackground, TouchableOpacity, Button, ActivityIndicator
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { generateClient } from 'aws-amplify/api';
@@ -21,7 +21,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-elements";
 import { Amplify } from 'aws-amplify';
 import config from '../../src/amplifyconfiguration.json';
+import { signOut } from 'aws-amplify/auth';
+import { getWaterActivityRecommendation } from './geminiAPI';
 Amplify.configure(config);
+
 const tidesData = [
   { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊",state:"CA" },
   { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊",state:"CA" },
@@ -49,11 +52,28 @@ function MapScreen() {
     );
   }
 function TidesScreen() {
+  const [loading, setLoading] = useState(false);
+  const [recommendation, setRecommendation] = useState('');
+
+  const sampleWaterData = {
+    height: 1.5, // meters
+    temperature: 22, // degrees Celsius
+    turbidity: 10, // NTU
+  };
+
+  const fetchRecommendation = async () => {
+    setLoading(true);
+    const result = await getWaterActivityRecommendation(sampleWaterData);
+    setRecommendation(result);
+    setLoading(false);
+  };
+
     return (
       
       <ImageBackground source={require('../../assets/images/shoresyncBackground.png')} 
       style={styles.background}
       resizeMode="cover">
+       
         <Text style={styles.title}>SHORESYNC</Text>
         <Card containerStyle={styles.card}>
           <FlatList
@@ -73,14 +93,23 @@ function TidesScreen() {
             There will be a fishing event at 8:00 AM at your nearest beach. Do you want to sign up?
           </Text>
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.button}>
+            
+            <TouchableOpacity style={styles.button} >
               <Text style={styles.buttonText}>Yes</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>No</Text>
             </TouchableOpacity>
           </View>
+
         </View>
+        <Pressable onPress={fetchRecommendation}style={styles.waterButtonContainer} > <Text style={styles.buttonText}>Get Water Activity Recommendation </Text> </Pressable>
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: 20 }} />
+      ) : (
+        <Text style={{ marginTop: 20 }}>{recommendation}</Text>
+      )}
+        <SignOutButton></SignOutButton>
       </ImageBackground>
     );
   }
@@ -89,7 +118,7 @@ const SignOutButton = () => {
   return (
     <Pressable onPress={signOut} style={styles.buttonContainer}>
       <Text style={styles.buttonText}>
-        Hello, {user.username}! Click here to sign out!
+         Sign Out
       </Text>
     </Pressable>
   );
@@ -101,6 +130,7 @@ const client = generateClient();
 const App = () => {
   const [formState, setFormState] = useState(initialFormState);
   const [todos, setTodos] = useState([]);
+  const [waveData, setWaveData] = useState()
 
   useEffect(() => {
     fetchTodos();
@@ -154,13 +184,13 @@ export default withAuthenticator(App);
 
 const styles = StyleSheet.create({
   background: { flex: 1, justifyContent: "center", alignItems: "center", width: "100%" },
-  title: { fontSize: 50, fontWeight: "bold", color: "white", marginTop: "-15%", marginLeft: "5%" },
+  title: { fontSize: 50, fontWeight: "bold", color: "black", marginTop: "0%", marginLeft: "5%" },
   card: { width: "90%", padding: 15, borderRadius: 10 },
   row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 },
   icon: { fontSize: 20 },
   location: { fontSize: 18, fontWeight: "bold" },
   level: { fontSize: 18, color: "blue" },
-  recommendation: { backgroundColor: "#FFF", padding: 20, borderRadius: 10, margin: 10, alignItems: "center" },
+  recommendation: { backgroundColor: "#FFF", padding: 20, borderRadius: 10, margin: 10, alignItems: "center", marginBottom: 0},
   recommendationText: { fontSize: 16, textAlign: "center" },
   buttonRow: { flexDirection: "row", marginTop: 10 },
   button: { backgroundColor: "#007AFF", padding: 10, borderRadius: 5, marginHorizontal: 10 },
@@ -178,6 +208,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: 'black',
     paddingHorizontal: 8
+  },
+  waterButtonContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'blue',
+    paddingHorizontal: 8,
+    paddingTop: 8
   },
   buttonText: { color: 'white', padding: 16, fontSize: 18 }
 });
