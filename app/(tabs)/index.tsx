@@ -24,7 +24,7 @@ import config from '../../src/amplifyconfiguration.json';
 import { signOut } from 'aws-amplify/auth';
 import { getWaterActivityRecommendation } from './geminiAPI';
 Amplify.configure(config);
-
+import { SearchBar } from 'react-native-elements';
 const tidesData = [
   { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊",state:"CA" },
   { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊",state:"CA" },
@@ -33,11 +33,38 @@ const tidesData = [
   { id: "5", location: "Miami", level: "2.7 ft", icon: "🌊",state:"FL" },
   { id: "6", location: "Seattle", level: "-0.9 ft", icon: "🌊",state:"WA" },
 ];
-
+const dataList = [
+  'Apple', 'Banana', 'Cherry', 'Date', 'Elderberry',
+  'Fig', 'Grape', 'Honeydew', 'Jackfruit'
+];
 function SearchScreen() {
+  const [search, setSearch] = useState('');
+  const [filteredData, setFilteredData] = useState(dataList);
+
+  const updateSearch = (text) => {
+    setSearch(text);
+    const filtered = dataList.filter(item =>
+      item.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
+
   return (
-    <View style={styles.screen}>
-      <Text>Search Screen</Text>
+    <View>
+      <SearchBar
+        placeholder="Search fruits..."
+        onChangeText={updateSearch}
+        value={search}
+        lightTheme
+        round
+      />
+      <FlatList
+        data={filteredData}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <Text style={{ padding: 10, fontSize: 18 }}>{item}</Text>
+        )}
+      />
     </View>
   );
 }
