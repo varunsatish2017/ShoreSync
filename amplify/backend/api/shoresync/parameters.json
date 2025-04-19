@@ -1,6 +1,5 @@
 {
   "AppSyncApiName": "shoresync",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false,
-  "AuthModeLastUpdated": "2025-04-04T23:57:46.719Z"
+  "DynamoDBEnableServerSideEncryption": false
 }

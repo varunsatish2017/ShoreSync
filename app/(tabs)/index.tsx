@@ -25,13 +25,14 @@ import { signOut } from 'aws-amplify/auth';
 import { getWaterActivityRecommendation } from './geminiAPI';
 Amplify.configure(config);
 import { SearchBar } from 'react-native-elements';
+import MapView, {Marker} from 'react-native-maps'
 const tidesData = [
-  { id: "1", location: "Santa Clara", level: "1.7 ft", icon: "🌊",state:"CA" },
-  { id: "2", location: "San Francisco", level: "-0.3 ft", icon: "🌊",state:"CA" },
-  { id: "3", location: "Cupertino", level: "4.9 ft", icon: "🌊",state:"CA" },
-  { id: "4", location: "Fremont", level: "2.5 ft", icon: "🌊",state:"CA" },
-  { id: "5", location: "Miami", level: "2.7 ft", icon: "🌊",state:"FL" },
-  { id: "6", location: "Seattle", level: "-0.9 ft", icon: "🌊",state:"WA" },
+  { id: "1", location: "Santa Clara", level: "1.7 ft", latitude: 37.3669, longitude: -122.0278, icon: "🌊",state:"CA" },
+  { id: "2", location: "San Francisco", level: "-0.3 ft", latitude: 37.7749, longitude: -122.4194, icon: "🌊",state:"CA" },
+  { id: "3", location: "Cupertino", level: "4.9 ft", latitude: 37.31934, longitude: -122.029264, icon: "🌊",state:"CA" },
+  { id: "4", location: "Fremont", level: "2.5 ft", latitude: 37.548271, longitude: -121.988571, icon: "🌊",state:"CA" },
+  { id: "5", location: "Miami", level: "2.7 ft", latitude: 25.7617, longitude: -80.1918, icon: "🌊",state:"FL" },
+  { id: "6", location: "Seattle", level: "-0.9 ft", latitude: 47.6061, longitude: -122.3328, icon: "🌊",state:"WA" },
 ];
 const dataList = [
   'Apple', 'Banana', 'Cherry', 'Date', 'Elderberry',
@@ -72,12 +73,41 @@ const Tab = createBottomTabNavigator();
 // retrieves only the current value of 'user' from 'useAuthenticator'
 const userSelector = (context) => [context.user];
 function MapScreen() {
-    return (
-      <View style={styles.screen}>
-        <Text>Map Screen</Text>
-      </View>
-    );
-  }
+  return (
+    <ImageBackground
+      source={require('../../assets/images/shoresyncBackground.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <Text style={styles.title}>SHORESYNC</Text>
+
+      <MapView
+        style={styles.map}
+        showsMyLocationButton={true}
+        showsUserLocation={true}
+        initialRegion={{
+          latitude: 37.0010,
+          longitude: -122.0627,
+          latitudeDelta: 1,
+          longitudeDelta: 1,
+        }}
+      >
+        {tidesData.map((item) => (
+          <Marker
+            key={item.id}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            title={item.location}
+            description={`Tide Level: ${item.level}`}
+          />
+        ))}
+      </MapView>
+    </ImageBackground>
+  );
+}
+
 function TidesScreen() {
   const [loading, setLoading] = useState(false);
   const [recommendation, setRecommendation] = useState('');
@@ -243,5 +273,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 8
   },
-  buttonText: { color: 'white', padding: 16, fontSize: 18 }
+  buttonText: { color: 'white', padding: 16, fontSize: 18 },
+  map: {width: "95%", justifyContent: "center", height: "80%", marginBottom: -80}
 });
